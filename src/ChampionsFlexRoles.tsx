@@ -153,7 +153,7 @@ const championFlexRoles: Record<string, string[]> = {
     vladimir: ["mid", "top"],
     volibear: ["top", "jungle"],
     warwick: ["jungle", "top"],
-    monkeyking: ["top", "jungle"],
+    wukong: ["top", "jungle"],
     xayah: ["bottom"],
     xerath: ["mid", "support"],
     xinzhao: ["jungle"],
