@@ -1,18 +1,53 @@
 import { useState, useEffect } from "react";
 import './App.css';
 import { openUrl } from "@tauri-apps/plugin-opener";
+import ChampionRoleBtn from "./components/ChampionRoleBtn";
+import championFlexRoles  from "./ChampionsFlexRoles";
 
 // interface ChampionImages {
 //   [key: string]: string;
 // }
+type ChampionsRoles = Record<string, string[]>
 
 function App() {
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [champions, setChampions] = useState<Record<string, string>>({});
   const [currentChampion, setCurrentChampion] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false); // состояние для анимации (переключение)
 
+  const toggleRole = (role: string) => {
+    setSelectedRoles(prev => {
+      if (prev.includes(role)) {
+        return prev.filter(r => r !== role);
+      }
+      return [...prev, role];
+    });
+  };
+
+  const getFilteredChampions = () => {
+    if (selectedRoles.length === 0) {
+      return Object.keys(championFlexRoles)
+    }
+    return Object.entries(championFlexRoles)
+      .filter(([_, roles]) => roles.some(role => selectedRoles.includes(role))).map(([name]) => name);
+  };
+
+  const randomizeChampion = () => {
+    const filtered = getFilteredChampions();
+    if (filtered.length === 0) return;
+
+    setIsAnimating(true);
+    const randomIndex = Math.floor(Math.random() * filtered.length);
+    const selectedChampion = filtered[randomIndex];
+
+    setTimeout(() => {
+      setCurrentChampion(selectedChampion);
+      setIsAnimating(false);
+    }, 200);
+  };  
+
   useEffect(() => {
-    const modules = import.meta.glob<{default: string}>('./assets/*{.jpg,png}');
+    const modules = import.meta.glob<{default: string}>('./assets/champions/*{.jpg,png}');
 
     // Импорт файлов, как оказалось, - асинхронная операция
     const loadImages = async () => {
@@ -35,26 +70,19 @@ function App() {
     // return () => {};
   }, []);
 
-  const randomizeChampion = () => {
-    const championNames = Object.keys(champions);
-    if (championNames.length === 0) return;
-
-    setIsAnimating(true);
-
-    const randomIndex = Math.floor(Math.random() * championNames.length);
-    const selectedChampion = championNames[randomIndex];
-
-    setTimeout(() => {
-      setCurrentChampion(selectedChampion);
-      setIsAnimating(false);
-    }, 200);
-  };
 
   useEffect(() => {
     if (Object.keys(champions).length > 0 && !currentChampion) {
       randomizeChampion();
     }
   }, [champions]);
+
+  // Rerandomise if filter changed
+  useEffect(() => {
+    if (selectedRoles.length > 0) {
+      randomizeChampion();
+    }
+  }, [selectedRoles]);  
 
   // Функция для открытия opgg
   const openChampionGuide = async (championName: string) => {
@@ -82,6 +110,34 @@ function App() {
         <p className="text-gray-400 mb-12 text-lg">
           Нажми кнопку, чтобы выбрать случайного чемпиона
         </p>
+
+        <div className="flex gap-4 mb-8">
+          <ChampionRoleBtn 
+            role="top" 
+            isActive={selectedRoles.includes("top")}
+            onToggle={toggleRole}
+          />
+          <ChampionRoleBtn 
+            role="jungle" 
+            isActive={selectedRoles.includes("jungle")}
+            onToggle={toggleRole}
+          />
+          <ChampionRoleBtn 
+            role="mid" 
+            isActive={selectedRoles.includes("mid")}
+            onToggle={toggleRole}
+          />
+          <ChampionRoleBtn 
+            role="bottom" 
+            isActive={selectedRoles.includes("bottom")}
+            onToggle={toggleRole}
+          />
+          <ChampionRoleBtn 
+            role="support" 
+            isActive={selectedRoles.includes("support")}
+            onToggle={toggleRole}
+          />
+        </div>
 
         <div className="relative w-full max-w-md">
           <div
