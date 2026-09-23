@@ -7,8 +7,6 @@ import championFlexRoles  from "./ChampionsFlexRoles";
 // interface ChampionImages {
 //   [key: string]: string;
 // }
-type ChampionsRoles = Record<string, string[]>
-
 function App() {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [champions, setChampions] = useState<Record<string, string>>({});
@@ -179,7 +177,7 @@ function App() {
                 
                 <div className="p-6">
                   <div className="flex items-center justify-between text-gray-400">
-                    <span>ADC Champion</span>
+                    <span>LOL Random Champion</span>
                     <span>{Object.keys(champions).length} всего</span>
                   </div>
                 </div>
